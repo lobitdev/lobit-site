@@ -1,0 +1,58 @@
+---
+import Container from "@components/container.astro";
+import Sectionhead from "@components/sectionhead.astro";
+import Layout from "@layouts/Layout.astro";
+import { getFormattedDate } from "@utils/all";
+import { Image } from "@astrojs/image/components";
+import { getCollection } from "astro:content";
+
+const allBlogPosts = await getCollection("blog");
+---
+
+<Layout title="Blog">
+  <Container>
+    <Sectionhead>
+      <Fragment slot="title">Our Blog</Fragment>
+      <Fragment slot="desc">Tulisan pengalaman & pemikiran</Fragment>
+    </Sectionhead>
+
+    <main class="mt-16">
+      <ul class="grid gap-16 max-w-4xl mx-auto">
+        {
+          allBlogPosts.map((post) => {
+            return (
+              <li>
+                <a href={`/blog/${post.slug}`}>
+                  <div class="grid md:grid-cols-2 gap-5 md:gap-10 items-center">
+                    <div>
+                      <img src={post.data.image} alt="Thumbnail" class="w-full rounded-md" width="600" />
+                    </div>
+                    <div>
+                      <span class="text-blue-400 uppercase tracking-wider text-sm font-medium">
+                        {post.data.category}
+                      </span>
+
+                      <h2 class="text-3xl font-semibold leading-snug tracking-tight mt-1 ">
+                        {post.data.title}
+                      </h2>
+
+                      <div class="flex gap-2 mt-3">
+                        <span class="text-gray-400">{post.data.author}</span>
+                        <span class="text-gray-400">• </span>
+                        <time
+                          class="text-gray-400"
+                          datetime={post.data.publishDate}>
+                          {getFormattedDate(post.data.publishDate)}
+                        </time>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </main>
+  </Container>
+</Layout>
