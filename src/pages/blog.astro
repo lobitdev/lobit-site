@@ -6,7 +6,10 @@ import { getFormattedDate } from "@utils/all";
 import { Image } from "@astrojs/image/components";
 import { getCollection } from "astro:content";
 
-const allBlogPosts = await getCollection("blog");
+const allBlogPosts = await getCollection("blog", (blog) => {
+  return !blog.data.draft;
+});
+allBlogPosts.sort((a, b) => (new Date(b.data.publishDate)).getTime() - (new Date(a.data.publishDate)).getTime());
 ---
 
 <Layout title="Blog">

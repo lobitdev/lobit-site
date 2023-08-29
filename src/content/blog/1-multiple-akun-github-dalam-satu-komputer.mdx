@@ -1,0 +1,113 @@
+---
+title: "Multiple Akun Github Dalam Satu Komputer"
+excerpt: "Menggunakan dua atau lebih akun github dalam satu buah komputer"
+publishDate: "2023-08-27T15:36:19.399Z"
+category: "DevOps"
+image: "/images/blog/1/multiple-akun-github-pada-satu-komputer.jpg"
+author: "Andika"
+tags: [git, ssh]
+---
+
+Terkadang kita memiliki 2 buah akun github, baik itu untuk pribadi & pekerjaan, atau alasan lain. Muncul kendala ketika konfigurasi *repository* dengan SSH, karena satu SSH Key hanya dapat digunakan di dalam satu akun github. Ketika kita paksakan untuk menambahkan ssh key yang sudah digunakan di akun github lain, tentu akan muncul pesan *error*, serta ssh key & akun github tidak akan terhubung.
+
+![SSH Key already in use](/images/blog/1/ssh-key-already-in-use.png)
+
+## Membuat SSH Key Baru
+
+Langkah pertama, buat sebuah ssh key baru. Bisa ikuti langkah - langkah yang ada di halaman [dokumentasi GitHub](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent?platform=mac
+) ini.
+
+```bash
+ssh-keygen -t ed25519 -C "andika@lobit.dev"
+```
+
+Selanjutnya berikan nama file yang sesuai dengan tujuan pembuatan SSH Key ini. Dalam kasus saya, saya beri nama `/Users/dev/.ssh/id_ed25519_lobitdev`. Pastikan input beserta *filepath* nya, jangan hanya *filename* nya saja. Maka akan terbuat dua buah *file keys*, yaitu *private key* yang tanpa ekstensi dan *public key* dengan ekstensi `.pub`.
+
+```
+Generating public/private ed25519 key pair.
+Enter file in which to save the key (/Users/dev/.ssh/id_ed25519): /Users/dev/.ssh/id_ed25519_lobitdev
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /Users/dev/.ssh/id_ed25519_lobitdev
+Your public key has been saved in /Users/dev/.ssh/id_ed25519_lobitdev.pub
+The key fingerprint is:
+SHA256:EuHf2/S3jfPbzyViAnYGrNAbECpa+FkLUaBq1sK8p1E andika@lobit.dev
+The key's randomart image is:
++--[ED25519 256]--+
+|  oo+..          |
+| o o + o         |
+|+ + o = o        |
+|=+.+ o * o       |
+|o*oE. + S + .    |
+|o +    o + + .   |
+| o .      o + o o|
+|  +        o ..==|
+| .            .=O|
++----[SHA256]-----+
+```
+
+Setelah SSH Key selesai dibuat, selanjutnya adalah menempatkan / menambahkan SSH Key yang telah dibuat ke dalam GitHub.
+
+- Masuk ke menu **Setting**
+- Masuk ke **SSH and GPG Keys**
+- Kemudian pilih **New SSH Key**
+![Setting SSH GPG Keys](/images/blog/1/setting-ssh-gpg-keys.png)
+
+- Copy *Public Key* dari *SSH Key* yang telah dibuat sebelumnya, via terminal
+
+```bash
+cat ~/.ssh/id_ed25519_lobitdev.pub | pbcopy
+```
+
+- Paste *Public Key* yang telah dicopy ke dalam inputan key di form *Add New SSH Key*
+- Kemudian klik **Add SSH Key**
+![Add a new SSH Key](/images/blog/1/add-new-ssh-key.png)
+
+- Pastikan SSH Key telah berhasil ditambahkan
+![SSH Key Added](/images/blog/1/ssh-key-added.png)
+
+## Buat Alias Untuk Host di Konfigurasi SSH
+
+Selanjutnya yang harus dilakukan adalah membuat alias untuk akun github yang baru ini. Pada kasus ini, dibuat SSH Host yang mengarah ke github.com menggunakan SSH Key yang telah dibuat di atas. Kemudian kombinasi Host dan SSH Key ini dibuatkan alias baru dengan nama `github-lobit`
+
+```
+Host github-lobit
+        HostName github.com
+        User git
+        IdentityFile ~/.ssh/id_ed25519_lobitdev
+```
+
+## Local Branch dengan Remote Branch
+
+### Buat Remote Branch Baru
+
+Pertama, bisa dibuatkan branch baru pada akun GitHub, atau bisa juga menggunakan branch yang telah ada sebelumnya.
+![Create remote branch](/images/blog/1/create-remote-branch.png)
+
+### Tambahkan remote origin
+
+Untuk menambahkan remote origin, ubah origin yang awalnya `git@github.com:user/repo.git` menjadi `git@github-lobit:user/repo.git`
+
+```bash
+git remote add origin git@github-lobit:lobitdev/lobit-site.git
+```
+
+Git sudah bisa digunakan untuk melakukan push atau pull seperti biasa.
+
+```
+git push origin main                                        
+Enumerating objects: 18, done.
+Counting objects: 100% (18/18), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (16/16), done.
+Writing objects: 100% (18/18), 57.16 KiB | 5.20 MiB/s, done.
+Total 18 (delta 0), reused 0 (delta 0), pack-reused 0
+To github-lobit:lobitdev/lobit-site.git
+ * [new branch]      main -> main
+```
+
+## Kesimpulan
+
+Pada dasarnya untuk bisa menggunakan **multiple akun GitHub dalam satu komputer** adalah di sisi Konfigurasi SSH nya. Penggunaan alias dalam kombinasi *Host* & *SSH Key* yang digunakan. Bisa juga ditambahkan beberapa akun sebanyak yang dibutuhkan.
+
+[[Kembali ke atas]](#top)

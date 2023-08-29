@@ -9,17 +9,18 @@ const { frontmatter } = Astro.props;
 <Layout title={frontmatter.title}>
   <Container>
     <div class="mx-auto max-w-[735px] mt-14">
-      <span class="text-blue-400 uppercase tracking-wider text-sm font-medium">
+      <img src={frontmatter.image} alt={`Image of ${frontmatter.title}`} class="mb-4 rounded" />
+      <a href={`/blog/category/${frontmatter.category.toLowerCase()}`} class="text-blue-400 hover:text-blue-500 uppercase tracking-wider text-sm font-medium">
         {frontmatter.category}
-      </span>
+      </a>
       <h1
         class="text-4xl lg:text-5xl font-bold lg:tracking-tight mt-1 lg:leading-tight">
         {frontmatter.title}
       </h1>
       <div class="flex gap-2 mt-3 items-center">
-        <span class="text-gray-400">
+        <a href={`/blog/author/${frontmatter.author.toLowerCase()}`} class="text-gray-400 hover:text-gray-500">
           {frontmatter.author}
-        </span>
+        </a>
         <span class="text-gray-400">•</span>
         <time class="text-gray-400" datetime={frontmatter.publishDate}>
           {getFormattedDate(frontmatter.publishDate)}
@@ -28,7 +29,7 @@ const { frontmatter } = Astro.props;
         <div class="flex gap-3">
           {
             frontmatter.tags.map((tag: string) => (
-              <span class="text-sm text-gray-500">#{tag}</span>
+              <a href={`/blog/tags/${tag.toLowerCase()}`} class="text-sm text-gray-500 hover:text-gray-600">#{tag}</a>
             ))
           }
         </div>
